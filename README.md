@@ -1,6 +1,6 @@
 # Shaping Skills
 
-[Claude Code](https://claude.com/claude-code) skills for shaping and breadboarding — the methodology from [Shape Up](https://basecamp.com/shapeup) adapted for working with an LLM.
+A [Claude Code](https://claude.com/claude-code) plugin for shaping and breadboarding — the methodology from [Shape Up](https://basecamp.com/shapeup) adapted for working with an LLM.
 
 **Case study:** [Shaping 0-1 with Claude Code](https://x.com/rjs/status/2020184079350563263) walks through the full process of building a project from scratch using these skills. The source for that project is at [rjs/tick](https://github.com/rjs/tick).
 
@@ -10,52 +10,51 @@
 
 **`/breadboarding`** — Map a system into UI affordances, code affordances, and wiring. Shows what users can do and how it works underneath — in one view. Good for slicing into vertical scopes.
 
+**`/breadboard-reflection`** — Review a breadboard for design smells. Trace user stories through wiring, apply the naming test, and fix affordance boundary problems.
+
 ## Install
 
+Install as a Claude Code plugin:
+
 ```bash
-# Clone the repo, then symlink each skill into your Claude Code skills directory
-git clone https://github.com/rjs/shaping-skills.git ~/.local/share/shaping-skills
-ln -s ~/.local/share/shaping-skills/breadboarding ~/.claude/skills/breadboarding
-ln -s ~/.local/share/shaping-skills/shaping ~/.claude/skills/shaping
+claude plugin add -- /path/to/shaping-skills
 ```
 
-Each skill must be a direct child of `~/.claude/skills/` so Claude Code can discover it. Symlinks keep them updatable with `git pull`.
+Or clone and install from the repo:
+
+```bash
+git clone https://github.com/rjs/shaping-skills.git ~/.local/share/shaping-skills
+claude plugin add -- ~/.local/share/shaping-skills
+```
 
 ## Hook: Ripple Check
 
-The repo includes a hook that reminds Claude to check for ripple effects when editing shaping documents. When Claude writes or edits a `.md` file with `shaping: true` in its frontmatter, the hook prompts a checklist — update affordance tables, fit checks, work streams, etc.
+The plugin includes a PostToolUse hook that fires after every `Write` or `Edit` tool call. When the edited file is a `.md` with `shaping: true` in its frontmatter, it prompts a ripple-check reminder — update affordance tables, fit checks, work streams, etc.
 
-### Setup
+The hook is registered automatically via `hooks/hooks.json` when the plugin is installed. No manual setup is needed.
 
-1. Symlink the hook script:
+## Plugin Structure
 
-```bash
-mkdir -p ~/.claude/hooks
-ln -s ~/.local/share/shaping-skills/hooks/shaping-ripple.sh ~/.claude/hooks/shaping-ripple.sh
 ```
-
-2. Add the hook to your `~/.claude/settings.json`:
-
-```json
-{
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/shaping-ripple.sh",
-            "timeout": 5
-          }
-        ]
-      }
-    ]
-  }
-}
+shaping-skills/
+├── .claude-plugin/
+│   └── plugin.json
+├── skills/
+│   ├── shaping/
+│   │   ├── SKILL.md
+│   │   └── references/
+│   ├── breadboarding/
+│   │   ├── SKILL.md
+│   │   └── references/
+│   └── breadboard-reflection/
+│       └── SKILL.md
+├── hooks/
+│   ├── hooks.json
+│   └── scripts/
+│       └── shaping-ripple.sh
+└── scripts/
+    └── test-gfm.sh
 ```
-
-This fires after every `Write` or `Edit` tool call. It only activates for shaping documents (those with `shaping: true` frontmatter) — all other files pass through silently.
 
 ---
 

@@ -1,4 +1,9 @@
-# Breadboard Analysis
+---
+name: breadboard-reflection
+description: This skill should be used when the user asks to "review a breadboard", "find design smells", "check breadboard quality", "run the naming test", "analyze affordance boundaries", or mentions fixing wiring issues, stale affordances, or breadboard design quality.
+---
+
+# Breadboard Reflection
 
 Find design smells in a breadboard and fix them. Works on existing breadboards built with the `/breadboarding` skill.
 
@@ -22,11 +27,11 @@ At each link, ask: does this step logically lead to the next? Does the wiring ma
 |-------|-----------------|
 | **Incoherent wiring** | A node writes to S1 AND triggers the thing that writes to S1 — redundant or contradictory |
 | **Missing path** | The user story requires an effect, but no wiring path produces it |
-| **Diagram-only nodes** | Nodes in the diagram that aren't in the affordance tables — decoration, not real affordances |
-| **Naming resistance** | You can't name an affordance with one idiomatic verb (see Naming Test below) |
-| **Stale affordances** | The breadboard shows something that no longer exists in the code |
+| **Diagram-only nodes** | Nodes in the diagram that are not in the affordance tables — decoration, not real affordances |
+| **Naming resistance** | An affordance cannot be named with one idiomatic verb (see Naming Test below) |
+| **Stale affordances** | The breadboard shows something that no longer exists in the code or has changed |
 | **Wrong causality** | The wiring shows A calls B, but the code shows C calls B |
-| **Implementation mismatch** | The code has logic paths, functions, or call chains that aren't represented in the breadboard |
+| **Implementation mismatch** | The code has logic paths, functions, or call chains that are not represented in the breadboard |
 
 The first three are visible from the breadboard and requirements alone. The last four require comparing to the implementation — read the actual code and check each affordance: does it exist? Does the wiring match what the code actually calls and returns? Is anything missing?
 
@@ -49,13 +54,13 @@ For each affordance:
 | One verb covers all code paths | Boundary is correct |
 | Need "or" to connect two verbs | Likely two affordances bundled together |
 | Name doesn't feel idiomatic | Boundary is wrong |
-| Name matches a downstream effect, not this step | You're naming the chain, not the step |
+| Name matches a downstream effect, not this step | The chain is being named, not the step |
 
 #### Step-Level vs Chain-Level Effects
 
 Name what THIS step does, not the downstream cascade.
 
-**Chain-level** (wrong): An orchestrator that calls validate, find, extract, and insert is named `add_locale` — but it doesn't add anything itself. Adding is the chain's effect.
+**Chain-level** (wrong): An orchestrator that calls validate, find, extract, and insert is named `add_locale` — but it does not add anything itself. Adding is the chain's effect.
 
 **Step-level** (right): The orchestrator's own effect is handling/dispatching → `handle_place_locale`. The adding happens downstream.
 
@@ -64,7 +69,7 @@ How to check:
 2. Remove all of that — what's left?
 3. Name what's left
 
-If what's left is just sequencing and branching, it's a handler. Name it as such.
+If what is left is just sequencing and branching, it is a handler. Name it as such.
 
 #### Caller-Perspective Naming
 
@@ -86,7 +91,7 @@ The internal handler that processes that tool call should be named for its own r
 
 A function `resolve_locale` either pops an existing locale from a list OR creates a new dict:
 
-- "Take" fits the pop path but "take into existence" isn't idiomatic English
+- "Take" fits the pop path but "take into existence" is not idiomatic English
 - "Create" fits the new path but not the pop
 - Need "or" → split into two affordances: `extract_locale` (pop) and `create_locale` (new)
 
@@ -100,16 +105,16 @@ When the naming test reveals a bundled affordance:
 2. **Then update the tables.** Add rows for new affordances with proper IDs, Wires Out, and Returns To.
 3. **Then update the diagram.** The diagram renders the tables.
 
-Never split only in the diagram (e.g., adding unnamed sub-nodes in a subgraph). If it's not a named function in the code and a row in the table, it's not a real affordance.
+Never split only in the diagram (e.g., adding unnamed sub-nodes in a subgraph). If it is not a named function in the code and a row in the table, it is not a real affordance.
 
 ### Fixing Wiring
 
 When the causality is wrong (A → B in the breadboard but C → B in the code):
 
-1. Read the code to understand the actual call chain.
-2. Update the table first — move the wire to the correct source.
-3. Update the diagram to match.
-4. Re-trace the user story to confirm the wiring now tells a coherent story.
+1. Read the code to understand the actual call chain
+2. Update the table first — move the wire to the correct source
+3. Update the diagram to match
+4. Re-trace the user story to confirm the wiring now tells a coherent story
 
 ---
 
@@ -118,7 +123,7 @@ When the causality is wrong (A → B in the breadboard but C → B in the code):
 After any changes:
 
 1. **Re-trace user stories.** Does the wiring now tell a coherent story for each requirement?
-2. **Describe the wiring in prose.** Trace every claim against the tables and diagram. If the prose says "N4 calls N13" but the diagram doesn't show that wire, something was missed.
+2. **Describe the wiring in prose.** Trace every claim against the tables and diagram. If the prose says "N4 calls N13" but the diagram does not show that wire, something was missed.
 3. **Check wiring consistency:**
    - Every Wires Out target must exist in the tables
    - Every Returns To source must have a corresponding Wires Out from its caller
